@@ -1,8 +1,10 @@
-
+scalar Date @DummyDirective
 
 # A test directive, that can be added anywhere
 directive @testDirective(
+  value: String
   anEnum: Episode = JEDI
+  aDate: Date
 ) on
 # ExecutableDirectiveLocation
 	QUERY | MUTATION | FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT |
@@ -18,7 +20,7 @@ on
 	SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 
-enum Episode  @DummyDirective {
+enum Episode   {
     NEWHOPE
     EMPIRE 
     JEDI
@@ -33,3 +35,4 @@ schema {
 type QueryType {
 	aQuery: String   
 }
+

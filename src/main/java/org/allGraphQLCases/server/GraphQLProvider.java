@@ -10,15 +10,14 @@ import static graphql.schema.idl.TypeRuntimeWiring.newTypeWiring;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.nio.charset.Charset;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.dataloader.DataLoader;
 import org.dataloader.DataLoaderRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -29,11 +28,6 @@ import org.springframework.util.FileCopyUtils;
 
 import graphql.GraphQL;
 import graphql.TypeResolutionEnvironment;
-import graphql.language.FieldDefinition;
-import graphql.language.InterfaceTypeDefinition;
-import graphql.language.ObjectTypeDefinition;
-import graphql.language.Type;
-import graphql.language.TypeName;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.TypeResolver;
@@ -42,14 +36,9 @@ import graphql.schema.idl.SchemaGenerator;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 
-import java.lang.Integer;
-import java.lang.Long;
-import java.lang.String;
-import java.util.Date;
-
 /**
- * This class is responsible for providing all the GraphQL Beans to the graphql-java Spring Boot integration.
- * <BR/><BR/>
+ * This class is responsible for providing all the GraphQL Beans to the graphql-java Spring Boot integration. <BR/>
+ * <BR/>
  * Based on the https://www.graphql-java.com/tutorials/getting-started-with-spring-boot/ tutorial
  * 
  * @author etienne-sf
@@ -101,13 +90,13 @@ public class GraphQLProvider {
 
 		return registry;
 	}
-	
+
 	@PostConstruct
 	public void init() throws IOException {
 		Resource res;
 		StringBuffer sdl = new StringBuffer();
 		res = new ClassPathResource("/allGraphQLCases.graphqls");
-		try(Reader reader = new InputStreamReader(res.getInputStream(), Charset.forName("UTF8"))) {
+		try (Reader reader = new InputStreamReader(res.getInputStream(), Charset.forName("UTF8"))) {
 			sdl.append(FileCopyUtils.copyToString(reader));
 		}
 		this.graphQL = GraphQL.newGraphQL(buildSchema(sdl.toString())).build();
@@ -121,7 +110,7 @@ public class GraphQLProvider {
 		graphQLSchema = schemaGenerator.makeExecutableSchema(typeRegistry, runtimeWiring);
 		return graphQLSchema;
 	}
-	
+
 	public GraphQLSchema getGraphQLSchema() {
 		return graphQLSchema;
 	}
@@ -133,97 +122,164 @@ public class GraphQLProvider {
 		// Also see sample :
 		// https://github.com/graphql-java/graphql-java-examples/tree/master/http-example
 		return RuntimeWiring.newRuntimeWiring()
-			.scalar(com.graphql_java_generator.customscalars.GraphQLScalarTypeDate.Date)
-			.scalar(org.allGraphQLCases.server.impl.GraphQLScalarTypeElse.getElseScalar())
-			.scalar(graphql.Scalars.GraphQLLong)
-			.scalar(graphql.scalars.ExtendedScalars.NonNegativeInt)
-			// Data fetchers for DataFetchersDelegateMyQueryType
-			.type(newTypeWiring("MyQueryType").dataFetcher("withoutParameters", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithoutParameters()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("withOneOptionalParam", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithOneOptionalParam()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("withOneMandatoryParam", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithOneMandatoryParam()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("withEnum", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithEnum()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("withList", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithList()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("allFieldCases", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeAllFieldCases()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("error", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeError()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("aBreak", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeABreak()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("directiveOnQuery", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeDirectiveOnQuery()))
-			.type(newTypeWiring("MyQueryType").dataFetcher("directiveOnField", graphQLDataFetchers.dataFetchersDelegateMyQueryTypeDirectiveOnField()))
-			// Data fetchers for DataFetchersDelegateAnotherMutationType
-			.type(newTypeWiring("AnotherMutationType").dataFetcher("createHuman", graphQLDataFetchers.dataFetchersDelegateAnotherMutationTypeCreateHuman()))
-			.type(newTypeWiring("AnotherMutationType").dataFetcher("createAllFieldCases", graphQLDataFetchers.dataFetchersDelegateAnotherMutationTypeCreateAllFieldCases()))
-			// Data fetchers for DataFetchersDelegateAllFieldCases
-			.type(newTypeWiring("AllFieldCases").dataFetcher("dates", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesDates()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesComments()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("booleans", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesBooleans()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("aliases", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesAliases()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("planets", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesPlanets()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesFriends()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesOneWithIdSubType()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesOneWithIdSubTypeWithDataLoader()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("listWithIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesListWithIdSubTypes()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("oneWithoutIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesOneWithoutIdSubType()))
-			.type(newTypeWiring("AllFieldCases").dataFetcher("listWithoutIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesListWithoutIdSubTypes()))
-			// Data fetchers for DataFetchersDelegateAllFieldCasesInterfaceType
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeComments()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("booleans", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeBooleans()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("aliases", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeAliases()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("planets", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypePlanets()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeFriends()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeOneWithIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeOneWithIdSubTypeWithDataLoader()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("listWithIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeListWithIdSubTypes()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("oneWithoutIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeOneWithoutIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("listWithoutIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeListWithoutIdSubTypes()))
-			// Data fetchers for DataFetchersDelegateHuman
-			.type(newTypeWiring("Human").dataFetcher("bestFriend", graphQLDataFetchers.dataFetchersDelegateHumanBestFriend()))
-			.type(newTypeWiring("Human").dataFetcher("bestFriend", graphQLDataFetchers.dataFetchersDelegateHumanBestFriendWithDataLoader()))
-			.type(newTypeWiring("Human").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateHumanFriends()))
-			.type(newTypeWiring("Human").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateHumanComments()))
-			.type(newTypeWiring("Human").dataFetcher("appearsIn", graphQLDataFetchers.dataFetchersDelegateHumanAppearsIn()))
-			// Data fetchers for DataFetchersDelegateDroid
-			.type(newTypeWiring("Droid").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateDroidFriends()))
-			.type(newTypeWiring("Droid").dataFetcher("appearsIn", graphQLDataFetchers.dataFetchersDelegateDroidAppearsIn()))
-			// Data fetchers for DataFetchersDelegateCharacter
-			.type(newTypeWiring("Character").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateCharacterFriends()))
-			.type(newTypeWiring("Character").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateCharacterFriends()))
-			.type(newTypeWiring("Character").dataFetcher("appearsIn", graphQLDataFetchers.dataFetchersDelegateCharacterAppearsIn()))
-			.type(newTypeWiring("Character").dataFetcher("appearsIn", graphQLDataFetchers.dataFetchersDelegateCharacterAppearsIn()))
-			// Data fetchers for DataFetchersDelegateCommented
-			.type(newTypeWiring("Commented").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateCommentedComments()))
-			.type(newTypeWiring("Commented").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateCommentedComments()))
-			// Data fetchers for DataFetchersDelegateAllFieldCasesInterface
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceComments()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("comments", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceComments()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("booleans", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceBooleans()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("booleans", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceBooleans()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("aliases", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceAliases()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("aliases", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceAliases()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("planets", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfacePlanets()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("planets", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfacePlanets()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceFriends()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("friends", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceFriends()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubTypeWithDataLoader()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithIdSubTypes()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithIdSubTypes()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithoutIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithoutIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithoutIdSubType", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithoutIdSubType()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithoutIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithoutIdSubTypes()))
-			.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithoutIdSubTypes", graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithoutIdSubTypes()))
-			// Data fetchers for DataFetchersDelegateAllFieldCasesWithIdSubtype
-			// Data fetchers for DataFetchersDelegateWithID
-			//
-			// Let's link the interface types to the concrete types
-			.type("WithID", typeWiring -> typeWiring.typeResolver(getWithIDResolver()))
-			.type("Character", typeWiring -> typeWiring.typeResolver(getCharacterResolver()))
-			.type("Commented", typeWiring -> typeWiring.typeResolver(getCommentedResolver()))
-			.type("AllFieldCasesInterface", typeWiring -> typeWiring.typeResolver(getAllFieldCasesInterfaceResolver()))
-			.build();
+				.scalar(com.graphql_java_generator.customscalars.GraphQLScalarTypeDate.Date)
+				.scalar(org.allGraphQLCases.server.impl.GraphQLScalarTypeElse.getElseScalar())
+				.scalar(graphql.Scalars.GraphQLLong).scalar(graphql.scalars.ExtendedScalars.NonNegativeInt)
+				// Data fetchers for DataFetchersDelegateMyQueryType
+				.type(newTypeWiring("MyQueryType").dataFetcher("withoutParameters",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithoutParameters()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("withOneOptionalParam",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithOneOptionalParam()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("withOneMandatoryParam",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithOneMandatoryParam()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("withEnum",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithEnum()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("withList",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeWithList()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("allFieldCases",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeAllFieldCases()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("error",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeError()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("aBreak",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeABreak()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("directiveOnQuery",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeDirectiveOnQuery()))
+				.type(newTypeWiring("MyQueryType").dataFetcher("directiveOnField",
+						graphQLDataFetchers.dataFetchersDelegateMyQueryTypeDirectiveOnField()))
+				// Data fetchers for DataFetchersDelegateAnotherMutationType
+				.type(newTypeWiring("AnotherMutationType").dataFetcher("createHuman",
+						graphQLDataFetchers.dataFetchersDelegateAnotherMutationTypeCreateHuman()))
+				.type(newTypeWiring("AnotherMutationType").dataFetcher("createAllFieldCases",
+						graphQLDataFetchers.dataFetchersDelegateAnotherMutationTypeCreateAllFieldCases()))
+				// Data fetchers for DataFetchersDelegateAllFieldCases
+				.type(newTypeWiring("AllFieldCases").dataFetcher("dates",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesDates()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesComments()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("booleans",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesBooleans()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("aliases",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesAliases()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("planets",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesPlanets()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesFriends()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesOneWithIdSubType()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesOneWithIdSubTypeWithDataLoader()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("listWithIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesListWithIdSubTypes()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("oneWithoutIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesOneWithoutIdSubType()))
+				.type(newTypeWiring("AllFieldCases").dataFetcher("listWithoutIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesListWithoutIdSubTypes()))
+				// Data fetchers for DataFetchersDelegateAllFieldCasesInterfaceType
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeComments()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("booleans",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeBooleans()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("aliases",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeAliases()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("planets",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypePlanets()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeFriends()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeOneWithIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers
+								.dataFetchersDelegateAllFieldCasesInterfaceTypeOneWithIdSubTypeWithDataLoader()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("listWithIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeListWithIdSubTypes()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("oneWithoutIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeOneWithoutIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterfaceType").dataFetcher("listWithoutIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceTypeListWithoutIdSubTypes()))
+				// Data fetchers for DataFetchersDelegateHuman
+				.type(newTypeWiring("Human").dataFetcher("bestFriend",
+						graphQLDataFetchers.dataFetchersDelegateHumanBestFriend()))
+				.type(newTypeWiring("Human").dataFetcher("bestFriend",
+						graphQLDataFetchers.dataFetchersDelegateHumanBestFriendWithDataLoader()))
+				.type(newTypeWiring("Human").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateHumanFriends()))
+				.type(newTypeWiring("Human").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateHumanComments()))
+				.type(newTypeWiring("Human").dataFetcher("appearsIn",
+						graphQLDataFetchers.dataFetchersDelegateHumanAppearsIn()))
+				// Data fetchers for DataFetchersDelegateDroid
+				.type(newTypeWiring("Droid").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateDroidFriends()))
+				.type(newTypeWiring("Droid").dataFetcher("appearsIn",
+						graphQLDataFetchers.dataFetchersDelegateDroidAppearsIn()))
+				// Data fetchers for DataFetchersDelegateCharacter
+				.type(newTypeWiring("Character").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateCharacterFriends()))
+				.type(newTypeWiring("Character").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateCharacterFriends()))
+				.type(newTypeWiring("Character").dataFetcher("appearsIn",
+						graphQLDataFetchers.dataFetchersDelegateCharacterAppearsIn()))
+				.type(newTypeWiring("Character").dataFetcher("appearsIn",
+						graphQLDataFetchers.dataFetchersDelegateCharacterAppearsIn()))
+				// Data fetchers for DataFetchersDelegateCommented
+				.type(newTypeWiring("Commented").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateCommentedComments()))
+				.type(newTypeWiring("Commented").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateCommentedComments()))
+				// Data fetchers for DataFetchersDelegateAllFieldCasesInterface
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceComments()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("comments",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceComments()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("booleans",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceBooleans()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("booleans",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceBooleans()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("aliases",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceAliases()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("aliases",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceAliases()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("planets",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfacePlanets()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("planets",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfacePlanets()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceFriends()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("friends",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceFriends()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubTypeWithDataLoader()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithIdSubTypes()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithIdSubTypes()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithoutIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithoutIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("oneWithoutIdSubType",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceOneWithoutIdSubType()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithoutIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithoutIdSubTypes()))
+				.type(newTypeWiring("AllFieldCasesInterface").dataFetcher("listWithoutIdSubTypes",
+						graphQLDataFetchers.dataFetchersDelegateAllFieldCasesInterfaceListWithoutIdSubTypes()))
+				// Data fetchers for DataFetchersDelegateAllFieldCasesWithIdSubtype
+				// Data fetchers for DataFetchersDelegateWithID
+				//
+				// Let's link the interface types to the concrete types
+				.type("WithID", typeWiring -> typeWiring.typeResolver(getWithIDResolver()))
+				.type("Character", typeWiring -> typeWiring.typeResolver(getCharacterResolver()))
+				.type("Commented", typeWiring -> typeWiring.typeResolver(getCommentedResolver()))
+				.type("AllFieldCasesInterface",
+						typeWiring -> typeWiring.typeResolver(getAllFieldCasesInterfaceResolver()))
+				.build();
 	}
 
-	private TypeResolver getWithIDResolver() {
+	TypeResolver getWithIDResolver() {
 		return new TypeResolver() {
 			@Override
 			public GraphQLObjectType getType(TypeResolutionEnvironment env) {
@@ -232,14 +288,11 @@ public class GraphQLProvider {
 
 				if (javaObject instanceof AllFieldCases) {
 					ret = "AllFieldCases";
-				} else
-				if (javaObject instanceof Human) {
+				} else if (javaObject instanceof Human) {
 					ret = "Human";
-				} else
-				if (javaObject instanceof Droid) {
+				} else if (javaObject instanceof Droid) {
 					ret = "Droid";
-				} else
-				{
+				} else {
 					throw new RuntimeException("Can't resolve javaObject " + javaObject.getClass().getName());
 				}
 				logger.trace("Resolved type for javaObject {} is {}", javaObject.getClass().getName());
@@ -248,7 +301,7 @@ public class GraphQLProvider {
 		};
 	}
 
-	private TypeResolver getCharacterResolver() {
+	TypeResolver getCharacterResolver() {
 		return new TypeResolver() {
 			@Override
 			public GraphQLObjectType getType(TypeResolutionEnvironment env) {
@@ -257,11 +310,9 @@ public class GraphQLProvider {
 
 				if (javaObject instanceof Human) {
 					ret = "Human";
-				} else
-				if (javaObject instanceof Droid) {
+				} else if (javaObject instanceof Droid) {
 					ret = "Droid";
-				} else
-				{
+				} else {
 					throw new RuntimeException("Can't resolve javaObject " + javaObject.getClass().getName());
 				}
 				logger.trace("Resolved type for javaObject {} is {}", javaObject.getClass().getName());
@@ -270,7 +321,7 @@ public class GraphQLProvider {
 		};
 	}
 
-	private TypeResolver getCommentedResolver() {
+	TypeResolver getCommentedResolver() {
 		return new TypeResolver() {
 			@Override
 			public GraphQLObjectType getType(TypeResolutionEnvironment env) {
@@ -279,8 +330,7 @@ public class GraphQLProvider {
 
 				if (javaObject instanceof Human) {
 					ret = "Human";
-				} else
-				{
+				} else {
 					throw new RuntimeException("Can't resolve javaObject " + javaObject.getClass().getName());
 				}
 				logger.trace("Resolved type for javaObject {} is {}", javaObject.getClass().getName());
@@ -289,7 +339,7 @@ public class GraphQLProvider {
 		};
 	}
 
-	private TypeResolver getAllFieldCasesInterfaceResolver() {
+	TypeResolver getAllFieldCasesInterfaceResolver() {
 		return new TypeResolver() {
 			@Override
 			public GraphQLObjectType getType(TypeResolutionEnvironment env) {
@@ -298,8 +348,7 @@ public class GraphQLProvider {
 
 				if (javaObject instanceof AllFieldCasesInterfaceType) {
 					ret = "AllFieldCasesInterfaceType";
-				} else
-				{
+				} else {
 					throw new RuntimeException("Can't resolve javaObject " + javaObject.getClass().getName());
 				}
 				logger.trace("Resolved type for javaObject {} is {}", javaObject.getClass().getName());

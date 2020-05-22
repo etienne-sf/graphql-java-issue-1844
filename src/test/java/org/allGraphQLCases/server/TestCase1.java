@@ -16,7 +16,7 @@ import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.errors.SchemaProblem;
 
-class testCase1 {
+class TestCase1 {
 
 	@Test
 	void test() throws SchemaProblem, IOException {
