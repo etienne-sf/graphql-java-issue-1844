@@ -3,10 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
-	<!-- 
-	graphql-java version is set on line 284
-	 -->
+
+	<!-- graphql-java version is set on line 284 -->
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -280,8 +278,8 @@
 			<dependency>
 				<groupId>com.graphql-java</groupId>
 				<artifactId>graphql-java</artifactId>
-				<!-- version>2020-05-19T19-17-54-57ce5cf5</version -->
-				<version>14.0</version>
+				<version>2020-05-19T19-17-54-57ce5cf5</version>
+				<!-- version>14.0</version -->
 			</dependency>
 			<dependency>
 				<groupId>com.graphql-java</groupId>
@@ -370,6 +368,23 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<!-- Dependencies for tests -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- Dependencies for the generated code -->
 		<dependency>
 			<groupId>com.graphql-java-generator</groupId>
