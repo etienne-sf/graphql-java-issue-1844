@@ -1,38 +1,10 @@
-scalar Date @DummyDirective
+scalar Date @DummyDirective  #Everything works nice if this @DummyDirective is not applied
 
 # A test directive, that can be added anywhere
-directive @testDirective(
-  value: String
-  anEnum: Episode = JEDI
-  aDate: Date
-) on
-# ExecutableDirectiveLocation
-	QUERY | MUTATION | FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT |
-# TypeSystemDirectiveLocation
-	SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @testDirective(aDate: Date) on OBJECT
 
-directive @DummyDirective
-on
-# ExecutableDirectiveLocation
-# SUBSCRIPTION value is not currently managed by graphql-java (as of v14.0)
-	QUERY | MUTATION | FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT |
-# TypeSystemDirectiveLocation
-	SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+directive @DummyDirective on SCALAR 
 
-
-enum Episode   {
-    NEWHOPE
-    EMPIRE 
-    JEDI
-    DOES_NOT_EXIST  
-}
-
-
-schema {
-    query: QueryType
-}
-
-type QueryType {
+type Query {
 	aQuery: String   
 }
-
