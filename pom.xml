@@ -279,7 +279,7 @@
 				<groupId>com.graphql-java</groupId>
 				<artifactId>graphql-java</artifactId>
 				<!-- version>2020-05-19T19-17-54-57ce5cf5</version -->
-				<version>15.0</version>
+				<version>17.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.graphql-java</groupId>
